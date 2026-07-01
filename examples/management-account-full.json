@@ -1,0 +1,34 @@
+[
+  {
+    "ParameterKey": "InfracostExternalId",
+    "ParameterValue": "REPLACE_ME_FROM_INFRACOST_UI"
+  },
+  {
+    "ParameterKey": "IsManagementAccount",
+    "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "EnableDataExports",
+    "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "EnableAnomalyMonitors",
+    "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "OrganizationArn",
+    "ParameterValue": "arn:aws:organizations::REPLACE_ME:organization/o-REPLACEME"
+  },
+  {
+    "ParameterKey": "TrustedServicePrincipals",
+    "ParameterValue": "storage-lens.s3.amazonaws.com,ce.amazonaws.com"
+  },
+  {
+    "ParameterKey": "KmsKeyArn",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "ExtraS3BucketArn1",
+    "ParameterValue": ""
+  }
+]

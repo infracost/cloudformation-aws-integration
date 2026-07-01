@@ -1,0 +1,14 @@
+# Suppressions are intentional and documented here rather than silenced ad-hoc, so CI stays
+# green while being honest about the accepted risk.
+skip-check:
+  # Neither the BCM Data Exports bucket nor the S3 Storage Lens bucket has access logging or
+  # versioning enabled. Both gaps already exist in the source terraform-aws-integration
+  # module (modules/billing-and-cost-management/bucket.tf, modules/s3-storage-lens/bucket.tf)
+  # and are out of scope for a straight port:
+  #  - Access logging would require provisioning a third, log-destination bucket that
+  #    neither this template nor the Terraform module creates.
+  #  - Versioning has no value here: both buckets only ever receive daily OVERWRITE_REPORT
+  #    exports, already covered by the 365-day expiration + intelligent-tiering lifecycle
+  #    rule, not something a customer edits and needs history for.
+  - CKV_AWS_18
+  - CKV_AWS_21

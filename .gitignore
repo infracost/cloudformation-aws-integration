@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+*.swp
+.aws-sam/
+samconfig.toml
+.cfn-lint-cache/
+.env
