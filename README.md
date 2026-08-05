@@ -1,10 +1,9 @@
 # Infracost AWS Integration (CloudFormation)
 
-A CloudFormation template to set up an AWS integration for Infracost Cloud —
-the CloudFormation equivalent of the
-[terraform-aws-integration](https://github.com/infracost/terraform-aws-integration)
-module, for customers who standardize on CloudFormation or AWS Organizations
-StackSets instead of Terraform.
+A CloudFormation template to set up an AWS integration for Infracost Cloud, for
+customers who standardize on CloudFormation or AWS Organizations StackSets
+instead of Terraform. A Terraform module is also available:
+[terraform-aws-integration](https://github.com/infracost/terraform-aws-integration).
 
 See the [AWS Integration docs](https://www.infracost.io/docs/integrations/aws_integration/)
 for more information.
@@ -46,6 +45,7 @@ Conditionally created:
 | `ExtraS3BucketArn1` / `2` / `3` | No | `""` | ARNs of extra buckets you want Infracost to read (e.g. a CUR bucket you already manage). Up to 3; contact Infracost if you need more. |
 | `EnableDataExports` | No | `false` | Requires `IsManagementAccount=true`, `OrganizationArn`, and `TrustedServicePrincipals`. |
 | `EnableAnomalyMonitors` | No | `false` | Requires `IsManagementAccount=true`. |
+| `ExistingAnomalyMonitorArn` | No | `""` | ARN of an existing `SERVICE`-dimension Cost Anomaly Detection monitor, if your account already has one. See below. |
 | `KmsKeyArn` | No | `""` | ARN (not alias) of a CMK for SSE-KMS on the export buckets. |
 | `OrganizationArn` | Only with `EnableDataExports` | `""` | See below. |
 | `TrustedServicePrincipals` | Only with `EnableDataExports` | `""` | See below. |
@@ -75,6 +75,22 @@ aws organizations list-aws-service-access-for-organization \
 enable [S3 Storage Lens trusted access](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_with_organizations_enabling_trusted_access.html)
 for your organization first.
 
+### Using an existing Cost Anomaly Detection monitor
+
+AWS allows only one `SERVICE`-dimension, `DIMENSIONAL`-type Cost Anomaly Detection monitor per
+account — many accounts already have one (for example, a `Default-Services-Monitor` created
+via the Cost Explorer console). If yours does, setting `EnableAnomalyMonitors=true` without
+`ExistingAnomalyMonitorArn` will fail with `HandlerErrorCode: AlreadyExists`. Check first:
+
+```bash
+aws ce get-anomaly-monitors --query \
+  "AnomalyMonitors[?MonitorType=='DIMENSIONAL' && MonitorDimension=='SERVICE'].MonitorArn" \
+  --output text
+```
+
+If that returns an ARN, pass it as `ExistingAnomalyMonitorArn` — the stack will use it as-is
+instead of trying to create a new one. If it returns nothing, leave the parameter blank.
+
 ## Deploying with the AWS CLI
 
 ```bash
@@ -90,12 +106,14 @@ setup and a full management-account setup with every feature enabled.
 
 ## Known limitations
 
-- **BCM Data Exports has limited CloudFormation regional availability.** As of this writing,
-  `AWS::BCMDataExports::Export` is only registered in a handful of regions (confirmed:
-  `us-east-1`, `us-east-2` is NOT supported, `us-west-1`, `us-west-2`, `eu-west-2`,
-  `me-south-1`). Deploy with `EnableDataExports=true` in `us-east-1` unless you've verified
-  otherwise for your target region (`aws cloudformation describe-type --type RESOURCE
-  --type-name AWS::BCMDataExports::Export --region <region>`).
+- **BCM Data Exports is a us-east-1-only service.** AWS Data Exports has exactly one service
+  endpoint, in `us-east-1` (see [AWS Billing and Cost Management endpoints and
+  quotas](https://docs.aws.amazon.com/general/latest/gr/billing.html#billing-data-export)) —
+  this isn't a CloudFormation registration gap, it's a property of the underlying service, and
+  it applies equally to the Terraform module. Deploy this stack with `EnableDataExports=true`
+  in `us-east-1`; the template's `Rules` section fails fast if you don't. The exported
+  cost/usage data itself still covers every AWS region in your account — this only restricts
+  where the Export resources themselves can be created.
 - **The BCM Data Exports service-linked role may already exist.** If your account has
   previously used BCM Data Exports (via this stack, the console, or another tool), stack
   creation can fail on `BcmDataExportsServiceLinkedRole` with an already-exists error —
@@ -115,7 +133,7 @@ setup and a full management-account setup with every feature enabled.
 ## Validating changes to this template
 
 ```bash
-make lint      # cfn-lint, including a multi-region resource-availability check
+make lint      # cfn-lint
 make security  # checkov, with documented suppressions in .checkov.yaml
 make ci        # both of the above
 ```

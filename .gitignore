@@ -5,3 +5,4 @@
 samconfig.toml
 .cfn-lint-cache/
 .env
+examples/local.*.json

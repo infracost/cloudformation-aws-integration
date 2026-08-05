@@ -16,12 +16,16 @@
     "ParameterValue": "true"
   },
   {
+    "ParameterKey": "ExistingAnomalyMonitorArn",
+    "ParameterValue": ""
+  },
+  {
     "ParameterKey": "OrganizationArn",
     "ParameterValue": "arn:aws:organizations::REPLACE_ME:organization/o-REPLACEME"
   },
   {
     "ParameterKey": "TrustedServicePrincipals",
-    "ParameterValue": "storage-lens.s3.amazonaws.com,ce.amazonaws.com"
+    "ParameterValue": ""
   },
   {
     "ParameterKey": "KmsKeyArn",

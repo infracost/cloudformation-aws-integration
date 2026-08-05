@@ -2,8 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   Infracost AWS Integration - sets up a read-only cross-account IAM role for
   Infracost Cloud, with optional BCM Data Exports, S3 Storage Lens, and Cost
-  Anomaly Detection provisioning. Ported from the terraform-aws-integration
-  Terraform module.
+  Anomaly Detection provisioning.
 
 Parameters:
   InfracostExternalId:
@@ -79,6 +78,21 @@ Parameters:
       Whether to enable Cost Anomaly Detection monitor provisioning. Can
       only be true when IsManagementAccount is true.
 
+  ExistingAnomalyMonitorArn:
+    Type: String
+    Default: ''
+    AllowedPattern: '^$|^arn:aws[a-zA-Z-]*:ce::\d{12}:anomalymonitor/[a-zA-Z0-9-]+$'
+    Description: >-
+      (Optional) ARN of an existing SERVICE-dimension, DIMENSIONAL-type Cost
+      Anomaly Detection monitor. AWS allows only one such monitor per
+      account, so if your account already has one (many do, via the Cost
+      Explorer console default), this stack can't create a second - set
+      EnableAnomalyMonitors=true and pass its ARN here instead, and this
+      stack will use it as-is rather than creating a new one. Run: aws ce
+      get-anomaly-monitors --query "AnomalyMonitors[?MonitorType=='DIMENSIONAL'
+      && MonitorDimension=='SERVICE'].MonitorArn" --output text
+      to check. Leave blank to have this stack create one.
+
   KmsKeyArn:
     Type: String
     Default: ''
@@ -121,6 +135,14 @@ Rules:
         AssertDescription: >-
           EnableAnomalyMonitors can only be true when IsManagementAccount is true.
 
+  AnomalyMonitorArnRequiresEnableAnomalyMonitors:
+    RuleCondition: !Not [!Equals [!Ref ExistingAnomalyMonitorArn, '']]
+    Assertions:
+      - Assert: !Equals [!Ref EnableAnomalyMonitors, 'true']
+        AssertDescription: >-
+          ExistingAnomalyMonitorArn has no effect unless EnableAnomalyMonitors
+          is also true.
+
   DataExportsRequiresOrganizationArn:
     RuleCondition: !Equals [!Ref EnableDataExports, 'true']
     Assertions:
@@ -128,6 +150,21 @@ Rules:
         AssertDescription: >-
           OrganizationArn must be set when EnableDataExports is true. Run:
           aws organizations describe-organization --query 'Organization.Arn' --output text
+
+  # AWS Data Exports (bcm-data-exports) has exactly one service endpoint, in us-east-1 - see
+  # https://docs.aws.amazon.com/general/latest/gr/billing.html#billing-data-export. Deploying
+  # this stack with EnableDataExports=true in any other region will fail on
+  # BcmDataExportsServiceLinkedRole/BcmDaily*Export, so this fails fast instead. The exported
+  # cost/usage data itself still covers every AWS region - this only restricts where the
+  # Export resources themselves can be created.
+  DataExportsRequiresUsEast1Region:
+    RuleCondition: !Equals [!Ref EnableDataExports, 'true']
+    Assertions:
+      - Assert: !Equals [!Ref 'AWS::Region', 'us-east-1']
+        AssertDescription: >-
+          EnableDataExports requires deploying this stack in us-east-1. AWS Data Exports
+          (BCM Data Exports) is a us-east-1-only service - see
+          https://docs.aws.amazon.com/general/latest/gr/billing.html
 
   StorageLensRequiresTrustedAccess:
     RuleCondition: !Equals [!Ref EnableDataExports, 'true']
@@ -150,6 +187,10 @@ Conditions:
   IsMemberAccount: !Not [!Condition IsManagementAccount]
   EnableDataExports: !Equals [!Ref EnableDataExports, 'true']
   EnableAnomalyMonitors: !Equals [!Ref EnableAnomalyMonitors, 'true']
+  HasExistingAnomalyMonitorArn: !Not [!Equals [!Ref ExistingAnomalyMonitorArn, '']]
+  CreateAnomalyMonitor: !And
+    - !Condition EnableAnomalyMonitors
+    - !Not [!Condition HasExistingAnomalyMonitorArn]
   HasKmsKey: !Not [!Equals [!Ref KmsKeyArn, '']]
   ApplyKmsDecryptPolicy: !And [!Condition IsManagementAccount, !Condition HasKmsKey]
   UseKmsForExportBuckets: !And [!Condition EnableDataExports, !Condition HasKmsKey]
@@ -660,7 +701,6 @@ Resources:
           S3BucketDestination:
             AccountId: !Ref AWS::AccountId
             Arn: !GetAtt StorageLensDataExportsBucket.Arn
-            Prefix: ''
             Format: Parquet
             OutputSchemaVersion: V_1
       Tags:
@@ -671,9 +711,13 @@ Resources:
   # Cost Anomaly Detection (cost-anomaly-detection)
   # ---------------------------------------------------------------------
 
+  # Only created when the account doesn't already have a SERVICE-dimension
+  # monitor - AWS caps that at one per account (see ExistingAnomalyMonitorArn
+  # above), so accounts that already have one (their own, or another tool's)
+  # would otherwise fail here with HandlerErrorCode: AlreadyExists.
   CostAnomalyServicesMonitor:
     Type: AWS::CE::AnomalyMonitor
-    Condition: EnableAnomalyMonitors
+    Condition: CreateAnomalyMonitor
     Properties:
       MonitorName: InfracostServicesMonitor
       MonitorType: DIMENSIONAL
@@ -714,6 +758,12 @@ Outputs:
     Value: !GetAtt StorageLensDataExportsBucket.Arn
 
   CostAnomalyDetectionServicesMonitorArn:
-    Description: The ARN of the Cost Anomaly Detection SERVICES monitor.
+    Description: >-
+      The ARN of the Cost Anomaly Detection SERVICES monitor - either newly
+      created by this stack, or the pre-existing one passed via
+      ExistingAnomalyMonitorArn.
     Condition: EnableAnomalyMonitors
-    Value: !GetAtt CostAnomalyServicesMonitor.MonitorArn
+    Value: !If
+      - CreateAnomalyMonitor
+      - !GetAtt CostAnomalyServicesMonitor.MonitorArn
+      - !Ref ExistingAnomalyMonitorArn

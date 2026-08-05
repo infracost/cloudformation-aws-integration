@@ -15,11 +15,6 @@ jobs:
           python-version: '3.x'
       - run: pip install cfn-lint
       - run: cfn-lint template.yaml
-      # Narrow on purpose: AWS::BCMDataExports::Export isn't registered in every region (see
-      # README#known-limitations). Only regions confirmed to support every resource type used
-      # in this template are checked here.
-      - name: Multi-region resource availability check
-        run: cfn-lint template.yaml --regions us-east-1 us-west-1 us-west-2 eu-west-2
 
   checkov:
     runs-on: ubuntu-latest

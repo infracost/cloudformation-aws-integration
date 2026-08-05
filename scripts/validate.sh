@@ -6,10 +6,6 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 echo "==> cfn-lint"
 cfn-lint template.yaml
-# Narrow region list: AWS::BCMDataExports::Export isn't registered in every region (see
-# README#known-limitations) - us-east-2/eu-west-1/etc would fail here regardless of the
-# template's correctness, so they're excluded from this check.
-cfn-lint template.yaml --regions us-east-1 us-west-1 us-west-2 eu-west-2
 
 echo "==> checkov"
 checkov -f template.yaml --framework cloudformation --compact --config-file .checkov.yaml
