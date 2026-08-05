@@ -12,7 +12,7 @@ for more information.
 > repo's `main` branch on GitHub. If you're working from a local clone that
 > hasn't been pushed yet, deploy with the AWS CLI instead (see below).
 
-[![Launch Stack](https://cdn.rawgit.com/HotelsDotCom/cloudformation-launch-stack-button-svg/master/launchstack.svg)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://raw.githubusercontent.com/infracost/cloudformation-aws-integration/main/template.yaml&stackName=infracost-aws-integration)
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://raw.githubusercontent.com/infracost/cloudformation-aws-integration/main/template.yaml&stackName=infracost-aws-integration)
 
 ## What this creates
 
