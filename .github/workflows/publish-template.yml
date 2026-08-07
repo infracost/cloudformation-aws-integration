@@ -1,0 +1,40 @@
+name: Publish template to S3
+
+# Triggered by the tag release-please creates (not by the Release workflow's
+# own push-to-main run) because github-actions-deploy-role's OIDC trust
+# policy only trusts this repo for ref:refs/tags/* - a run triggered by a
+# branch push has sub ref:refs/heads/main and would be rejected. This also
+# means the publish step only ever runs against an actual tagged release,
+# never an arbitrary main commit.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deploy-role
+          aws-region: us-east-2
+
+      - name: publish template.yaml
+        env:
+          # Set once, manually, in this repo's Settings > Secrets and
+          # variables > Actions, after infra PR #1341 (modules/public_templates)
+          # is merged and applied - the bucket name is generated at apply
+          # time (random_pet suffix), so it can't be hardcoded here.
+          BUCKET: ${{ vars.PUBLIC_TEMPLATES_BUCKET }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          aws s3 cp template.yaml "s3://${BUCKET}/cloudformation-aws-integration/v${VERSION}/template.yaml"
+          aws s3 cp template.yaml "s3://${BUCKET}/cloudformation-aws-integration/latest/template.yaml"
