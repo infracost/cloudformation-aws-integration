@@ -29,8 +29,6 @@ jobs:
 
       - name: publish template.yaml
         env:
-          # Fixed name, not generated at apply time - see infra's
-          # modules/public_templates.
           BUCKET: infracost-public-templates
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
