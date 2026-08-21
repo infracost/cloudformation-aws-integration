@@ -393,7 +393,7 @@ Resources:
             - HasExtraS3BucketArn1
             - Sid: InfracostS3ObjectAccessExtra1
               Effect: Allow
-              Action: [s3:GetObject]
+              Action: [s3:GetObject, s3:HeadObject]
               Resource: !Sub "${ExtraS3BucketArn1}/*"
             - !Ref AWS::NoValue
           - !If
@@ -407,7 +407,7 @@ Resources:
             - HasExtraS3BucketArn2
             - Sid: InfracostS3ObjectAccessExtra2
               Effect: Allow
-              Action: [s3:GetObject]
+              Action: [s3:GetObject, s3:HeadObject]
               Resource: !Sub "${ExtraS3BucketArn2}/*"
             - !Ref AWS::NoValue
           - !If
@@ -421,7 +421,7 @@ Resources:
             - HasExtraS3BucketArn3
             - Sid: InfracostS3ObjectAccessExtra3
               Effect: Allow
-              Action: [s3:GetObject]
+              Action: [s3:GetObject, s3:HeadObject]
               Resource: !Sub "${ExtraS3BucketArn3}/*"
             - !Ref AWS::NoValue
           - !If
@@ -437,7 +437,7 @@ Resources:
             - EnableDataExports
             - Sid: InfracostS3ObjectAccessExports
               Effect: Allow
-              Action: [s3:GetObject]
+              Action: [s3:GetObject, s3:HeadObject]
               Resource:
                 - !Sub "${BcmDataExportsBucket.Arn}/*"
                 - !Sub "${StorageLensDataExportsBucket.Arn}/*"
