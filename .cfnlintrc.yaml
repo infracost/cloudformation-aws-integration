@@ -1,0 +1,5 @@
+ignore_checks:
+  # cfn-lint's bundled IAM action list doesn't yet recognize s3:HeadObject,
+  # even though it's a real, valid S3 action - AWS's own IAM API accepts it,
+  # and Infracost's permission-check diagnostic requires it explicitly.
+  - W3037
