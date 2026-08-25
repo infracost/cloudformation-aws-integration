@@ -120,9 +120,6 @@ setup and a full management-account setup with every feature enabled.
   Terraform module's open-ended list. CloudFormation has no clean way to map a `/*` object-ARN
   suffix over an arbitrary-length parameter list, so this template uses a small number of
   fixed, independently-optional parameters instead. Contact Infracost if 3 isn't enough.
-- **`s3:HeadObject`**, present in the Terraform module's S3 access policy, is omitted here —
-  it isn't a real IAM action (the S3 `HeadObject` API is authorized by `s3:GetObject`), and
-  `cfn-lint` flags it. This is a no-op removal, not a permissions change.
 
 ## Validating changes to this template
 
@@ -135,6 +132,19 @@ make ci        # both of the above
 Neither requires AWS credentials. See [CONTRIBUTING](scripts/validate.sh) for the additional
 manual/local checks (`aws cloudformation validate-template`, a Rules/Conditions dry run via
 `create-change-set`) that do require credentials and so aren't run in CI.
+
+## Release process
+
+Releases are automated from [Conventional Commits](https://www.conventionalcommits.org/)
+using [release-please](https://github.com/googleapis/release-please): merging a PR whose
+commits follow that convention opens (or updates) a release PR with an auto-generated
+changelog; merging that PR cuts a semantically-versioned GitHub Release and git tag
+(`vX.Y.Z`).
+
+See the [Releases page](https://github.com/infracost/cloudformation-aws-integration/releases)
+or [CHANGELOG.md](CHANGELOG.md) for what changed in each version. We recommend pinning to a
+specific released version rather than tracking `main` directly, since `main` can contain
+unreleased, in-progress changes.
 
 ## License
 
