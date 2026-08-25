@@ -5,13 +5,15 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -19,3 +21,33 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  # A separate, tag-triggered workflow won't work here: release-please-action
+  # creates its tag using GITHUB_TOKEN, and GitHub Actions doesn't fire other
+  # workflows off events caused by GITHUB_TOKEN (an anti-recursion
+  # safeguard). Running this as a second job in the same workflow run
+  # sidesteps that entirely - it only needs the release_created output, not
+  # a fresh trigger.
+  publish-template:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-public-templates-role
+          aws-region: us-east-2
+
+      - name: publish template.yaml
+        env:
+          BUCKET: infracost-public-templates
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: |
+          aws s3 cp template.yaml "s3://${BUCKET}/cloudformation-aws-integration/v${VERSION}/template.yaml"
+          aws s3 cp template.yaml "s3://${BUCKET}/cloudformation-aws-integration/latest/template.yaml"
