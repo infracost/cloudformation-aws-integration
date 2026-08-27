@@ -98,6 +98,69 @@ aws cloudformation deploy \
 See [`examples/`](examples/) for parameter-override files covering a minimal member-account
 setup and a full management-account setup with every feature enabled.
 
+## Deploying org-wide with StackSets
+
+If you want this role deployed to every account in your AWS Organization (rather than one
+account at a time), deploy `template.yaml` as a
+[CloudFormation StackSet](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html)
+from your management account instead of a single stack. It's the same template — StackSets just
+roll it out to a list of accounts/OUs and keep new accounts in sync automatically.
+
+0. One-time setup: enable trusted access for StackSets, both at the Organizations level and the
+   CloudFormation level (these are two separate flags — enabling one does not enable the other,
+   and `create-stack-set` fails with `You must enable organizations access to operate a service
+   managed stack set` until both are on):
+
+   ```bash
+   aws organizations enable-aws-service-access \
+     --service-principal member.org.stacksets.cloudformation.amazonaws.com
+   aws cloudformation activate-organizations-access
+   ```
+
+1. Create the StackSet with service-managed permissions (AWS creates the admin/execution roles
+   for you):
+
+   ```bash
+   aws cloudformation create-stack-set \
+     --stack-set-name infracost-aws-integration \
+     --template-body file://template.yaml \
+     --permission-model SERVICE_MANAGED \
+     --auto-deployment Enabled=true,RetainStacksOnAccountRemoval=false \
+     --capabilities CAPABILITY_NAMED_IAM \
+     --parameters file://examples/stackset-member.json
+   ```
+
+2. Deploy stack instances to your member-account OU(s) using the same member parameters. Note
+   that service-managed StackSets only accept **OU** targets, not an `--accounts` list, and this
+   `create-stack-set`/`create-stack-instances` pair must run in `us-east-1` even if you never
+   enable `EnableDataExports` — the template references `AWS::BCMDataExports::Export`, which
+   StackSets validates against the target region's resource-type registry, and that type is only
+   registered in `us-east-1`:
+
+   ```bash
+   aws cloudformation create-stack-instances \
+     --stack-set-name infracost-aws-integration \
+     --deployment-targets OrganizationalUnitIds=<your-ou-id> \
+     --regions us-east-1
+   ```
+
+3. Deploy the management account **separately, as a normal stack** (not a StackSet instance).
+   AWS's service-managed permission model can't target the organization's management account at
+   all — a `create-stack-instances` call scoped to it "succeeds" but silently creates zero
+   instances, so this isn't optional:
+
+   ```bash
+   aws cloudformation deploy \
+     --template-file template.yaml \
+     --stack-name infracost-aws-integration \
+     --parameter-overrides file://examples/stackset-management.json \
+     --capabilities CAPABILITY_NAMED_IAM \
+     --region us-east-1
+   ```
+
+New accounts added to the target OU(s) later will automatically get the stack instance created
+for them, since `auto-deployment` is enabled.
+
 ## Known limitations
 
 - **BCM Data Exports is a us-east-1-only service.** AWS Data Exports has exactly one service
