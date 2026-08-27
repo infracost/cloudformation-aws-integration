@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "InfracostExternalId",
+    "ParameterValue": "REPLACE_ME_FROM_INFRACOST_UI"
+  },
+  {
+    "ParameterKey": "IsManagementAccount",
+    "ParameterValue": "true"
+  }
+]
