@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.1](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.0...v0.1.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* publish as a second job in release.yml, not a tag-triggered workflow ([a4fea04](https://github.com/infracost/cloudformation-aws-integration/commit/a4fea042e54e6c1f6edc6e2f381ce0fa0aefd5ef))
+* publish in release.yml, plus release-process docs ([408d9c4](https://github.com/infracost/cloudformation-aws-integration/commit/408d9c48c5c823a6437657128212d56a21a6aa38))
+
+
+### Documentation
+
+* add org-wide StackSet deployment instructions ([c9bcc94](https://github.com/infracost/cloudformation-aws-integration/commit/c9bcc94a1059b27304d25d9b6be0f4b0838ca83f))
+* add org-wide StackSet deployment instructions ([7c1d068](https://github.com/infracost/cloudformation-aws-integration/commit/7c1d0687bf97e997ae0891d0c5f92ba24b411c60))
+
 ## 0.1.0 (2026-08-25)
 
 
