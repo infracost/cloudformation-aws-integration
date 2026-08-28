@@ -8,6 +8,21 @@ instead of Terraform. A Terraform module is also available:
 See the [AWS Integration docs](https://www.infracost.io/docs/integrations/aws_integration/)
 for more information.
 
+## Quick start
+
+Click a button below to launch the stack in the AWS Console with `IsManagementAccount`
+pre-filled. You'll still need to paste in your **Infracost External ID** on the next screen —
+see [Deploying with the AWS CLI](#deploying-with-the-aws-cli) below for where to find it. Deploy
+to your **management account** first, then repeat with the member-account button for every other
+account (or use [StackSets](#deploying-org-wide-with-stacksets) to roll it out to many member
+accounts at once).
+
+[![Launch Stack (Management Account)](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?templateURL=https://infracost-public-templates.s3.us-east-2.amazonaws.com/cloudformation-aws-integration/latest/template.yaml&stackName=infracost-aws-integration&param_IsManagementAccount=true)
+&nbsp;&nbsp;**Management account** (region locked to `us-east-1`, required for data exports)
+
+[![Launch Stack (Member Account)](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?templateURL=https://infracost-public-templates.s3.us-east-2.amazonaws.com/cloudformation-aws-integration/latest/template.yaml&stackName=infracost-aws-integration&param_IsManagementAccount=false)
+&nbsp;&nbsp;**Member account** (you can switch region after launching — the role itself is global)
+
 ## What this creates
 
 Always created:
