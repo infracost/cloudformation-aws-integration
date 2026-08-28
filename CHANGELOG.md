@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.1...v0.1.2) (2026-08-28)
+
+
+### Documentation
+
+* add Launch Stack buttons for management and member accounts ([7af5d05](https://github.com/infracost/cloudformation-aws-integration/commit/7af5d05b1cc282ecbe10425c418c97b4df60d2b5))
+* add Launch Stack buttons for management and member accounts ([b024140](https://github.com/infracost/cloudformation-aws-integration/commit/b024140fd2563e74f50a8e69f28b22d9b72191a4))
+
 ## [0.1.1](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.0...v0.1.1) (2026-08-27)
 
 
