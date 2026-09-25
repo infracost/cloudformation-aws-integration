@@ -28,6 +28,10 @@
     "ParameterValue": ""
   },
   {
+    "ParameterKey": "EnableBedrockInvoke",
+    "ParameterValue": "true"
+  },
+  {
     "ParameterKey": "KmsKeyArn",
     "ParameterValue": ""
   },
