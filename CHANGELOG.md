@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.1...v0.2.0) (2026-09-25)
+
+
+### Features
+
+* add optional infracost-bedrock role for invoking Claude models ([#14](https://github.com/infracost/cloudformation-aws-integration/issues/14)) ([af89dee](https://github.com/infracost/cloudformation-aws-integration/commit/af89deed0efc0bc37e97f13cc42978b4f47f17b7))
+* **storage-lens:** add EnableAdvancedMetrics parameter ([b3259be](https://github.com/infracost/cloudformation-aws-integration/commit/b3259be423502c4b1eb7fcc8b7904a12751f65a5))
+* **storage-lens:** add EnableAdvancedMetrics parameter ([b902e00](https://github.com/infracost/cloudformation-aws-integration/commit/b902e00362bbe6ba1893d62209deda4828832bf0))
+
+
+### Documentation
+
+* add Launch Stack buttons for management and member accounts ([7af5d05](https://github.com/infracost/cloudformation-aws-integration/commit/7af5d05b1cc282ecbe10425c418c97b4df60d2b5))
+* add Launch Stack buttons for management and member accounts ([b024140](https://github.com/infracost/cloudformation-aws-integration/commit/b024140fd2563e74f50a8e69f28b22d9b72191a4))
+* explain what each IAM permission group is for ([#13](https://github.com/infracost/cloudformation-aws-integration/issues/13)) ([7891f25](https://github.com/infracost/cloudformation-aws-integration/commit/7891f25d8b1bfa0fdb88562d138d4904d8e6bc42))
+
 ## [0.1.1](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.0...v0.1.1) (2026-08-27)
 
 
