@@ -222,6 +222,12 @@ Resources:
             Condition:
               StringEquals:
                 sts:ExternalId: !Ref InfracostExternalId
+      # ViewOnlyAccess already grants the bulk of the read-only
+      # resource-discovery and per-service ListTags/Describe APIs, so the
+      # inline actions in the readonly policies below are deliberately
+      # limited to what ViewOnlyAccess does NOT cover, plus a few wildcards
+      # that are intentionally broader than ViewOnlyAccess grants.
+      # See: https://docs.aws.amazon.com/aws-managed-policy/latest/reference/ViewOnlyAccess.html
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/job-function/ViewOnlyAccess"
       Tags:
@@ -246,42 +252,78 @@ Resources:
             Effect: Allow
             Resource: '*'
             Action:
+              # Read-only actions shared with the member-account policy
+              # below. These are NOT covered by the ViewOnlyAccess managed
+              # policy.
+
+              # Tag fetching: fallback ListTags-style APIs for services that
+              # tag:GetResources doesn't index reliably, plus the default tag
+              # API. ViewOnlyAccess has no `tag:` service and only a subset
+              # of these per-service tag APIs.
               - acm:ListTagsForCertificate
               - amplify:ListApps
               - amplify:ListTagsForResource
               - apigateway:GET
               - apprunner:ListServices
               - apprunner:ListTagsForResource
-              - bcm-data-exports:Get*
-              - bcm-data-exports:List*
-              - ce:Describe*
-              - ce:Get*
-              - ce:List*
-              - compute-optimizer:Get*
-              - cost-optimization-hub:Get*
-              - cost-optimization-hub:List*
-              - ec2:DescribeClientVpnEndpoints
-              - ec2:DescribeLaunchTemplates
-              - ec2:DescribeTransitGatewayAttachments
               - ecr:ListTagsForResource
               - globalaccelerator:ListTagsForResource
               - macie2:ListTagsForResource
-              - organizations:DescribeOrganization
-              - pricing:Describe*
-              - pricing:Get*
-              - pricing:List*
               - rds:ListTagsForResource
               - s3:GetBucketLocation
               - s3:GetBucketTagging
+              - savingsplans:ListTagsForResource
+              - scheduler:ListTagsForResource
+              - tag:GetResources
+
+              # Workload discovery not covered by ViewOnlyAccess (no
+              # DescribeLaunch* wildcard).
+              - ec2:DescribeLaunchTemplates
+
+              # ViewOnlyAccess enumerates EC2 describes individually; these
+              # two aren't in it.
+              - ec2:DescribeClientVpnEndpoints
+              - ec2:DescribeTransitGatewayAttachments
+
+              # Management-only actions: APIs that only function on the AWS
+              # Organization's management account. None of the cost/pricing
+              # APIs are part of ViewOnlyAccess, which is resource-view-only.
+
+              # BCM Data Exports - discover FOCUS / cost-allocation export
+              # configs.
+              - bcm-data-exports:Get*
+              - bcm-data-exports:List*
+
+              # Cost Explorer.
+              - ce:Describe*
+              - ce:Get*
+              - ce:List*
+
+              # Recommendations: Compute Optimizer, Cost Optimization Hub,
+              # Trusted Advisor. The cost-optimization-hub and trustedadvisor
+              # Get*/List* wildcards are intentionally broader than the
+              # specific actions ViewOnlyAccess grants.
+              - compute-optimizer:Get*
+              - cost-optimization-hub:Get*
+              - cost-optimization-hub:List*
+              - trustedadvisor:Get*
+              - trustedadvisor:List*
+
+              # Organization metadata: ListAccounts/ListTagsForResource etc.
+              # come from ViewOnlyAccess (organizations:List*);
+              # DescribeOrganization does not.
+              - organizations:DescribeOrganization
+
+              # Pricing API.
+              - pricing:Describe*
+              - pricing:Get*
+              - pricing:List*
+
+              # S3 Storage Lens configuration discovery.
               - s3:GetStorageLensConfiguration
               - s3:GetStorageLensConfigurationTagging
               - s3:GetStorageLensDashboard
               - s3:ListStorageLensConfigurations
-              - savingsplans:ListTagsForResource
-              - scheduler:ListTagsForResource
-              - tag:GetResources
-              - trustedadvisor:Get*
-              - trustedadvisor:List*
 
   MemberAccountReadOnlyPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -298,15 +340,20 @@ Resources:
             Effect: Allow
             Resource: '*'
             Action:
+              # Read-only actions every cross-account role gets, regardless
+              # of whether it's installed in management or member mode.
+              # These are NOT covered by the ViewOnlyAccess managed policy.
+
+              # Tag fetching: fallback ListTags-style APIs for services that
+              # tag:GetResources doesn't index reliably, plus the default tag
+              # API. ViewOnlyAccess has no `tag:` service and only a subset
+              # of these per-service tag APIs.
               - acm:ListTagsForCertificate
               - amplify:ListApps
               - amplify:ListTagsForResource
               - apigateway:GET
               - apprunner:ListServices
               - apprunner:ListTagsForResource
-              - ec2:DescribeClientVpnEndpoints
-              - ec2:DescribeLaunchTemplates
-              - ec2:DescribeTransitGatewayAttachments
               - ecr:ListTagsForResource
               - globalaccelerator:ListTagsForResource
               - macie2:ListTagsForResource
@@ -316,6 +363,15 @@ Resources:
               - savingsplans:ListTagsForResource
               - scheduler:ListTagsForResource
               - tag:GetResources
+
+              # Workload discovery not covered by ViewOnlyAccess (no
+              # DescribeLaunch* wildcard).
+              - ec2:DescribeLaunchTemplates
+
+              # ViewOnlyAccess enumerates EC2 describes individually; these
+              # two aren't in it.
+              - ec2:DescribeClientVpnEndpoints
+              - ec2:DescribeTransitGatewayAttachments
 
   RoleIntrospectionPolicy:
     Type: AWS::IAM::ManagedPolicy
