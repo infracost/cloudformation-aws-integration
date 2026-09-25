@@ -70,6 +70,17 @@ Parameters:
       Can only be true when IsManagementAccount is true. Requires
       OrganizationArn and TrustedServicePrincipals to also be set.
 
+  EnableAdvancedMetrics:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+    Description: >-
+      Whether to enable S3 Storage Lens advanced-tier metrics (activity
+      metrics and advanced cost optimization metrics) at the account and
+      bucket level. Both are billed by AWS per million objects monitored
+      org-wide. Set to false to stay on the free metrics tier. Only has an
+      effect when EnableDataExports is true.
+
   EnableAnomalyMonitors:
     Type: String
     Default: 'false'
@@ -186,6 +197,7 @@ Conditions:
   IsManagementAccount: !Equals [!Ref IsManagementAccount, 'true']
   IsMemberAccount: !Not [!Condition IsManagementAccount]
   EnableDataExports: !Equals [!Ref EnableDataExports, 'true']
+  EnableAdvancedMetrics: !Equals [!Ref EnableAdvancedMetrics, 'true']
   EnableAnomalyMonitors: !Equals [!Ref EnableAnomalyMonitors, 'true']
   HasExistingAnomalyMonitorArn: !Not [!Equals [!Ref ExistingAnomalyMonitorArn, '']]
   CreateAnomalyMonitor: !And
@@ -687,14 +699,14 @@ Resources:
         IsEnabled: true
         AccountLevel:
           ActivityMetrics:
-            IsEnabled: true
+            IsEnabled: !If [EnableAdvancedMetrics, true, false]
           AdvancedCostOptimizationMetrics:
-            IsEnabled: true
+            IsEnabled: !If [EnableAdvancedMetrics, true, false]
           BucketLevel:
             ActivityMetrics:
-              IsEnabled: true
+              IsEnabled: !If [EnableAdvancedMetrics, true, false]
             AdvancedCostOptimizationMetrics:
-              IsEnabled: true
+              IsEnabled: !If [EnableAdvancedMetrics, true, false]
         AwsOrg:
           Arn: !Ref OrganizationArn
         DataExport:

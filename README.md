@@ -53,6 +53,7 @@ Conditionally created:
 | `RoleSuffix` | No | `""` | Appended to all resource names; useful for deploying multiple test roles in one account. |
 | `ExtraS3BucketArn1` / `2` / `3` | No | `""` | ARNs of extra buckets you want Infracost to read (e.g. a CUR bucket you already manage). Up to 3; contact Infracost if you need more. |
 | `EnableDataExports` | No | `false` | Requires `IsManagementAccount=true`, `OrganizationArn`, and `TrustedServicePrincipals`. |
+| `EnableAdvancedMetrics` | No | `true` | S3 Storage Lens advanced-tier metrics (activity + advanced cost optimization). AWS bills these per million objects monitored org-wide. Set `false` to stay on the free tier. Only used with `EnableDataExports=true`. |
 | `EnableAnomalyMonitors` | No | `false` | Requires `IsManagementAccount=true`. |
 | `ExistingAnomalyMonitorArn` | No | `""` | ARN of an existing `SERVICE`-dimension Cost Anomaly Detection monitor, if your account already has one. See below. |
 | `KmsKeyArn` | No | `""` | ARN (not alias) of a CMK for SSE-KMS on the export buckets. |
