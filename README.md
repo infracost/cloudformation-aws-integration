@@ -41,6 +41,7 @@ Conditionally created:
 | Extra S3 bucket access | `ExtraS3BucketArn1/2/3` | Read access to up to 3 buckets you already own (e.g. a CUR bucket) |
 | BCM Data Exports + S3 Storage Lens | `EnableDataExports=true` | 2 S3 buckets, 2 BCM Data Exports (FOCUS 1.2 + Cost Optimization Hub), an S3 Storage Lens configuration |
 | Cost Anomaly Detection | `EnableAnomalyMonitors=true` | A `SERVICE`-dimension Cost Anomaly Detection monitor |
+| Bedrock model access | `EnableBedrockInvoke=true` | A separate `infracost-bedrock` role that can invoke Bedrock models from one vendor, so Infracost's AI agents run on your Bedrock account |
 | KMS encryption | `KmsKeyArn=<arn>` | SSE-KMS on the data-export buckets instead of the SSE-S3 default, plus a decrypt policy |
 
 ## Parameters
@@ -55,6 +56,8 @@ Conditionally created:
 | `EnableDataExports` | No | `false` | Requires `IsManagementAccount=true`, `OrganizationArn`, and `TrustedServicePrincipals`. |
 | `EnableAdvancedMetrics` | No | `true` | S3 Storage Lens advanced-tier metrics (activity + advanced cost optimization). AWS bills these per million objects monitored org-wide. Set `false` to stay on the free tier. Only used with `EnableDataExports=true`. |
 | `EnableAnomalyMonitors` | No | `false` | Requires `IsManagementAccount=true`. |
+| `EnableBedrockInvoke` | No | `false` | Creates the `infracost-bedrock` role. Give the `BedrockRoleArn` output to Infracost. You must also enable the models in the Bedrock console. |
+| `BedrockModelVendor` | No | `anthropic` | Model vendor the Bedrock role can use. Only `anthropic` is supported. Only used with `EnableBedrockInvoke=true`. |
 | `ExistingAnomalyMonitorArn` | No | `""` | ARN of an existing `SERVICE`-dimension Cost Anomaly Detection monitor, if your account already has one. See below. |
 | `KmsKeyArn` | No | `""` | ARN (not alias) of a CMK for SSE-KMS on the export buckets. |
 | `OrganizationArn` | Only with `EnableDataExports` | `""` | See below. |
@@ -199,6 +202,9 @@ for them, since `auto-deployment` is enabled.
   Terraform module's open-ended list. CloudFormation has no clean way to map a `/*` object-ARN
   suffix over an arbitrary-length parameter list, so this template uses a small number of
   fixed, independently-optional parameters instead. Contact Infracost if 3 isn't enough.
+- **Bedrock takes one model vendor** (`BedrockModelVendor`), where the Terraform module
+  takes a list (`bedrock_model_vendors`). CloudFormation can't turn a list parameter into a
+  list of ARNs, and `anthropic` is the only vendor supported today anyway.
 
 ## Validating changes to this template
 

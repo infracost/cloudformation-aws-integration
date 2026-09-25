@@ -89,6 +89,25 @@ Parameters:
       Whether to enable Cost Anomaly Detection monitor provisioning. Can
       only be true when IsManagementAccount is true.
 
+  EnableBedrockInvoke:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: >-
+      Whether to create a separate infracost-bedrock role for invoking Amazon
+      Bedrock models in this account. This lets Infracost's AI agents use your
+      Bedrock account, so you pay for usage and prompts stay in your account.
+      You must also enable the models in the Bedrock console.
+
+  BedrockModelVendor:
+    Type: String
+    Default: anthropic
+    AllowedValues: [anthropic]
+    Description: >-
+      Model vendor the infracost-bedrock role can use. Choose the model in
+      Infracost without changing this setting. Only used with
+      EnableBedrockInvoke=true.
+
   ExistingAnomalyMonitorArn:
     Type: String
     Default: ''
@@ -203,6 +222,7 @@ Conditions:
   CreateAnomalyMonitor: !And
     - !Condition EnableAnomalyMonitors
     - !Not [!Condition HasExistingAnomalyMonitorArn]
+  EnableBedrockInvoke: !Equals [!Ref EnableBedrockInvoke, 'true']
   HasKmsKey: !Not [!Equals [!Ref KmsKeyArn, '']]
   ApplyKmsDecryptPolicy: !And [!Condition IsManagementAccount, !Condition HasKmsKey]
   UseKmsForExportBuckets: !And [!Condition EnableDataExports, !Condition HasKmsKey]
@@ -512,6 +532,69 @@ Resources:
             - !Ref AWS::NoValue
 
   # ---------------------------------------------------------------------
+  # Bedrock
+  # ---------------------------------------------------------------------
+
+  # A separate role to keep infracost-readonly read-only. Uses the same
+  # trust policy as CrossAccountRole.
+  BedrockRole:
+    Type: AWS::IAM::Role
+    Condition: EnableBedrockInvoke
+    Properties:
+      RoleName: !Sub "infracost-bedrock${RoleSuffix}"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${InfracostAccountId}:root"
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref InfracostExternalId
+      Tags:
+        - Key: InfracostModuleVersion
+          Value: !FindInMap [ModuleInfo, Version, Value]
+
+  BedrockInvokePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Condition: EnableBedrockInvoke
+    Properties:
+      ManagedPolicyName: !Sub "infracost-bedrock-invoke${RoleSuffix}"
+      Path: /
+      Description: >-
+        Lets the Infracost Bedrock role invoke models from the configured
+        vendor and read model availability in this account
+      Roles: [!Ref BedrockRole]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: InfracostBedrockInvoke
+            Effect: Allow
+            Action:
+              - bedrock:InvokeModel
+              - bedrock:InvokeModelWithResponseStream
+            Resource:
+              # Regions use wildcards because cross-region profiles need
+              # access to models in every region they use.
+              - !Sub "arn:${AWS::Partition}:bedrock:*::foundation-model/${BedrockModelVendor}.*"
+              - !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:inference-profile/*.${BedrockModelVendor}.*"
+              # Application profile IDs hide their models, but access still
+              # follows the vendor limits above.
+              - !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
+          # Read-only checks so setup problems can be reported clearly:
+          # which inference profiles exist and whether model access is
+          # enabled.
+          - Sid: InfracostBedrockInspect
+            Effect: Allow
+            Action:
+              - bedrock:GetFoundationModelAvailability
+              - bedrock:GetInferenceProfile
+              - bedrock:ListFoundationModels
+              - bedrock:ListInferenceProfiles
+            Resource: '*'
+
+  # ---------------------------------------------------------------------
   # BCM Data Exports (billing-and-cost-management)
   # ---------------------------------------------------------------------
 
@@ -804,6 +887,13 @@ Outputs:
       The ARN of the Cross-Account Role with IAM read-only permissions.
       Provide this to Infracost.
     Value: !GetAtt CrossAccountRole.Arn
+
+  BedrockRoleArn:
+    Description: >-
+      ARN of the Bedrock invoke role. Give this to Infracost when using your
+      own Bedrock account.
+    Condition: EnableBedrockInvoke
+    Value: !GetAtt BedrockRole.Arn
 
   BillingAndCostManagementExportArn:
     Description: The ARN of the BCM Data Exports export.
