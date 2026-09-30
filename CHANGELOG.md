@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/infracost/cloudformation-aws-integration/compare/v0.2.0...v0.2.1) (2026-09-30)
+
+
+### Miscellaneous
+
+* pin GitHub Actions to SHAs ([#15](https://github.com/infracost/cloudformation-aws-integration/issues/15)) ([d75c4ef](https://github.com/infracost/cloudformation-aws-integration/commit/d75c4ef75141b902f2281d617e646ab15f3e6286))
+
 ## [0.2.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.1...v0.2.0) (2026-09-25)
 
 
