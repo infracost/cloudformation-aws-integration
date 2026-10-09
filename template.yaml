@@ -210,7 +210,7 @@ Rules:
 Mappings:
   ModuleInfo:
     Version:
-      Value: '0.2.0' # x-release-please-version
+      Value: '0.3.0' # x-release-please-version
 
 Conditions:
   IsManagementAccount: !Equals [!Ref IsManagementAccount, 'true']
