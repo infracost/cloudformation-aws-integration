@@ -303,7 +303,11 @@ Resources:
               - macie2:ListTagsForResource
               - rds:ListTagsForResource
               - s3:GetBucketLocation
+              - s3:GetBucketObjectLockConfiguration
               - s3:GetBucketTagging
+              - s3:GetBucketVersioning
+              - s3:GetLifecycleConfiguration
+              - s3:GetReplicationConfiguration
               - savingsplans:ListTagsForResource
               - scheduler:ListTagsForResource
               - tag:GetResources
@@ -395,7 +399,11 @@ Resources:
               - macie2:ListTagsForResource
               - rds:ListTagsForResource
               - s3:GetBucketLocation
+              - s3:GetBucketObjectLockConfiguration
               - s3:GetBucketTagging
+              - s3:GetBucketVersioning
+              - s3:GetLifecycleConfiguration
+              - s3:GetReplicationConfiguration
               - savingsplans:ListTagsForResource
               - scheduler:ListTagsForResource
               - tag:GetResources
