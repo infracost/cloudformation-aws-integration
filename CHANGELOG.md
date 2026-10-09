@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.2.0...v0.3.0) (2026-10-09)
+
+
+### Features
+
+* grant Bedrock catalog access to CloudFormation integration roles ([01bd81e](https://github.com/infracost/cloudformation-aws-integration/commit/01bd81e822707e988165babbba06f6dcac09de9e))
+* grant S3 lifecycle configuration reads ([d56648b](https://github.com/infracost/cloudformation-aws-integration/commit/d56648bbfbfbacbec5a4d5c69461c3ad19adabea))
+
+
+### Bug Fixes
+
+* grant Bedrock catalog access to integration roles ([a850290](https://github.com/infracost/cloudformation-aws-integration/commit/a850290363c7e291a9fdc6dedaa36453425a491d))
+
+
+### Miscellaneous
+
+* pin GitHub Actions to SHAs ([#15](https://github.com/infracost/cloudformation-aws-integration/issues/15)) ([d75c4ef](https://github.com/infracost/cloudformation-aws-integration/commit/d75c4ef75141b902f2281d617e646ab15f3e6286))
+
 ## [0.2.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.1...v0.2.0) (2026-09-25)
 
 
