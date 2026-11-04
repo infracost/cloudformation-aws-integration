@@ -30,7 +30,10 @@ Always created:
 - A cross-account IAM role (`infracost-readonly`) that Infracost Cloud assumes, scoped
   with an external ID condition.
 - The AWS-managed `ViewOnlyAccess` policy, plus a small set of read-only actions
-  it doesn't cover (tag-fetching APIs, a few EC2 describes).
+  it doesn't cover (tag-fetching APIs, a few EC2 describes, and Bedrock catalog
+  and application inference-profile metadata reads). Profile metadata access covers
+  the role's own account in all regions, in both management and member accounts,
+  independently of `EnableBedrockInvoke`; it does not permit model invocation.
 - A role-introspection policy so Infracost can detect which features the role has access to.
 
 Conditionally created:

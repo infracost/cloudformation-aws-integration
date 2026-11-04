@@ -365,6 +365,13 @@ Resources:
               - s3:GetStorageLensDashboard
               - s3:ListStorageLensConfigurations
 
+          # Resolve application profile models for lifecycle checks, not invocation.
+          - Sid: InfracostBedrockApplicationProfileReadOnly
+            Effect: Allow
+            Action:
+              - bedrock:GetInferenceProfile
+            Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
+
   MemberAccountReadOnlyPolicy:
     Type: AWS::IAM::ManagedPolicy
     Condition: IsMemberAccount
@@ -420,6 +427,13 @@ Resources:
               # two aren't in it.
               - ec2:DescribeClientVpnEndpoints
               - ec2:DescribeTransitGatewayAttachments
+
+          # Resolve application profile models for lifecycle checks, not invocation.
+          - Sid: InfracostBedrockApplicationProfileReadOnly
+            Effect: Allow
+            Action:
+              - bedrock:GetInferenceProfile
+            Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
 
   RoleIntrospectionPolicy:
     Type: AWS::IAM::ManagedPolicy
