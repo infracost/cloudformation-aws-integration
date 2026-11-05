@@ -317,6 +317,11 @@ Resources:
               - bedrock:ListFoundationModels
               - bedrock:ListInferenceProfiles
 
+              # Bedrock Mantle model and project metadata; no model invocation.
+              - bedrock-mantle:GetModel
+              - bedrock-mantle:GetProject
+              - bedrock-mantle:ListModels
+
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
               - ec2:DescribeLaunchTemplates
@@ -421,6 +426,11 @@ Resources:
               # are not supported. This does not allow model invocation.
               - bedrock:ListFoundationModels
               - bedrock:ListInferenceProfiles
+
+              # Bedrock Mantle model and project metadata; no model invocation.
+              - bedrock-mantle:GetModel
+              - bedrock-mantle:GetProject
+              - bedrock-mantle:ListModels
 
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
