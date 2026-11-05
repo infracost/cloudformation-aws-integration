@@ -312,9 +312,10 @@ Resources:
               - scheduler:ListTagsForResource
               - tag:GetResources
 
-              # Bedrock catalog discovery; resource-level permissions are
-              # not supported. This does not allow model invocation.
+              # Bedrock model and profile discovery; resource-level permissions
+              # are not supported. This does not allow model invocation.
               - bedrock:ListFoundationModels
+              - bedrock:ListInferenceProfiles
 
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
@@ -365,11 +366,12 @@ Resources:
               - s3:GetStorageLensDashboard
               - s3:ListStorageLensConfigurations
 
-          # Resolve application profile models for lifecycle checks, not invocation.
+          # Read application profile models and tags without allowing invocation.
           - Sid: InfracostBedrockApplicationProfileReadOnly
             Effect: Allow
             Action:
               - bedrock:GetInferenceProfile
+              - bedrock:ListTagsForResource
             Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
 
   MemberAccountReadOnlyPolicy:
@@ -415,9 +417,10 @@ Resources:
               - scheduler:ListTagsForResource
               - tag:GetResources
 
-              # Bedrock catalog discovery; resource-level permissions are
-              # not supported. This does not allow model invocation.
+              # Bedrock model and profile discovery; resource-level permissions
+              # are not supported. This does not allow model invocation.
               - bedrock:ListFoundationModels
+              - bedrock:ListInferenceProfiles
 
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
@@ -428,11 +431,12 @@ Resources:
               - ec2:DescribeClientVpnEndpoints
               - ec2:DescribeTransitGatewayAttachments
 
-          # Resolve application profile models for lifecycle checks, not invocation.
+          # Read application profile models and tags without allowing invocation.
           - Sid: InfracostBedrockApplicationProfileReadOnly
             Effect: Allow
             Action:
               - bedrock:GetInferenceProfile
+              - bedrock:ListTagsForResource
             Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
 
   RoleIntrospectionPolicy:
