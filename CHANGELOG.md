@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.3.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.2.0...v0.3.0) (2026-11-11)
+
+
+### Features
+
+* grant Bedrock catalog access to CloudFormation integration roles ([01bd81e](https://github.com/infracost/cloudformation-aws-integration/commit/01bd81e822707e988165babbba06f6dcac09de9e))
+* grant Bedrock profile metadata reads - TRK-1437 ([c87e094](https://github.com/infracost/cloudformation-aws-integration/commit/c87e0949cb714d806f123b059d32d224d6959895))
+* grant S3 lifecycle configuration reads ([d56648b](https://github.com/infracost/cloudformation-aws-integration/commit/d56648bbfbfbacbec5a4d5c69461c3ad19adabea))
+
+
+### Bug Fixes
+
+* allow Bedrock profile inventory (TRK-1437) ([1957664](https://github.com/infracost/cloudformation-aws-integration/commit/19576643e774197faa3125328f8123b505049526))
+* grant Bedrock catalog access to integration roles ([a850290](https://github.com/infracost/cloudformation-aws-integration/commit/a850290363c7e291a9fdc6dedaa36453425a491d))
+* grant Bedrock Mantle metadata access (TRK-1437) ([f9b672c](https://github.com/infracost/cloudformation-aws-integration/commit/f9b672c566726faf59fce40e83fa5d53340d49dd))
+* grant Bedrock profile metadata reads (TRK-1437) ([270e30c](https://github.com/infracost/cloudformation-aws-integration/commit/270e30c32284f693fd31acdf84516b0e8f840397))
+
+
+### Miscellaneous
+
+* pin GitHub Actions to SHAs ([#15](https://github.com/infracost/cloudformation-aws-integration/issues/15)) ([d75c4ef](https://github.com/infracost/cloudformation-aws-integration/commit/d75c4ef75141b902f2281d617e646ab15f3e6286))
+
 ## [0.2.0](https://github.com/infracost/cloudformation-aws-integration/compare/v0.1.1...v0.2.0) (2026-09-25)
 
 
