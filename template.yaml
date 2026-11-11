@@ -312,9 +312,15 @@ Resources:
               - scheduler:ListTagsForResource
               - tag:GetResources
 
-              # Bedrock catalog discovery; resource-level permissions are
-              # not supported. This does not allow model invocation.
+              # Bedrock model and profile discovery; resource-level permissions
+              # are not supported. This does not allow model invocation.
               - bedrock:ListFoundationModels
+              - bedrock:ListInferenceProfiles
+
+              # Bedrock Mantle model and project metadata; no model invocation.
+              - bedrock-mantle:GetModel
+              - bedrock-mantle:GetProject
+              - bedrock-mantle:ListModels
 
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
@@ -365,6 +371,14 @@ Resources:
               - s3:GetStorageLensDashboard
               - s3:ListStorageLensConfigurations
 
+          # Read application profile models and tags without allowing invocation.
+          - Sid: InfracostBedrockApplicationProfileReadOnly
+            Effect: Allow
+            Action:
+              - bedrock:GetInferenceProfile
+              - bedrock:ListTagsForResource
+            Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
+
   MemberAccountReadOnlyPolicy:
     Type: AWS::IAM::ManagedPolicy
     Condition: IsMemberAccount
@@ -408,9 +422,15 @@ Resources:
               - scheduler:ListTagsForResource
               - tag:GetResources
 
-              # Bedrock catalog discovery; resource-level permissions are
-              # not supported. This does not allow model invocation.
+              # Bedrock model and profile discovery; resource-level permissions
+              # are not supported. This does not allow model invocation.
               - bedrock:ListFoundationModels
+              - bedrock:ListInferenceProfiles
+
+              # Bedrock Mantle model and project metadata; no model invocation.
+              - bedrock-mantle:GetModel
+              - bedrock-mantle:GetProject
+              - bedrock-mantle:ListModels
 
               # Workload discovery not covered by ViewOnlyAccess (no
               # DescribeLaunch* wildcard).
@@ -420,6 +440,14 @@ Resources:
               # two aren't in it.
               - ec2:DescribeClientVpnEndpoints
               - ec2:DescribeTransitGatewayAttachments
+
+          # Read application profile models and tags without allowing invocation.
+          - Sid: InfracostBedrockApplicationProfileReadOnly
+            Effect: Allow
+            Action:
+              - bedrock:GetInferenceProfile
+              - bedrock:ListTagsForResource
+            Resource: !Sub "arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:application-inference-profile/*"
 
   RoleIntrospectionPolicy:
     Type: AWS::IAM::ManagedPolicy
